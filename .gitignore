@@ -1,2 +1,31 @@
-**/.vscode/*
-**/*.exe
+# Ignore all Windows executables anywhere
+*.exe
+
+# CUDA generated artifacts
+*.ptx
+*.cubin
+*.fatbin
+*.cuobjdump
+*.cudafe1.cpp
+*.cudafe2.c
+
+# Common build / generated files and folders
+build/
+bin/
+obj/
+out/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+*.o
+*.obj
+*.so
+*.a
+*.dll
+*.lib
+*.pdb
+*.dSYM
+
+# IDE/editor generated
+.vscode/
+.idea/

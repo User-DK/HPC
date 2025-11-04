@@ -7,8 +7,7 @@ int main(int argc, char** argv) {
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
-
+    
     int n = 10;
     int half = n / 2;
 

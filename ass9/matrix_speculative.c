@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <string.h>
 
-#define N 512
+#define N 256
 
 double A[N][N], B[N][N];
 double C_classical[N][N], C_strassen[N][N];
@@ -36,13 +36,13 @@ void classical_multiply() {
     classical_done = 1;
 }
 
-void add_matrix(double X[N][N], double Y[N][N], double Z[N][N], int size) {
+void add_matrix(double **X, double **Y, double **Z, int size) {
     for (int i = 0; i < size; i++)
         for (int j = 0; j < size; j++)
             Z[i][j] = X[i][j] + Y[i][j];
 }
 
-void sub_matrix(double X[N][N], double Y[N][N], double Z[N][N], int size) {
+void sub_matrix(double **X, double **Y, double **Z, int size) {
     for (int i = 0; i < size; i++)
         for (int j = 0; j < size; j++)
             Z[i][j] = X[i][j] - Y[i][j];
@@ -52,10 +52,24 @@ void strassen_multiply_simple() {
     double start = omp_get_wtime();
     
     int half = N / 2;
-    double A11[N][N], A12[N][N], A21[N][N], A22[N][N];
-    double B11[N][N], B12[N][N], B21[N][N], B22[N][N];
-    double M1[N][N], M2[N][N], M3[N][N], M4[N][N], M5[N][N], M6[N][N], M7[N][N];
-    double T1[N][N], T2[N][N];
+    // Use dynamic allocation to avoid stack overflow
+    double **A11 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) A11[i] = malloc(half * sizeof(double));
+    double **A12 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) A12[i] = malloc(half * sizeof(double));
+    double **A21 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) A21[i] = malloc(half * sizeof(double));
+    double **A22 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) A22[i] = malloc(half * sizeof(double));
+    double **B11 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) B11[i] = malloc(half * sizeof(double));
+    double **B12 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) B12[i] = malloc(half * sizeof(double));
+    double **B21 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) B21[i] = malloc(half * sizeof(double));
+    double **B22 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) B22[i] = malloc(half * sizeof(double));
+    double **M1 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M1[i] = malloc(half * sizeof(double));
+    double **M2 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M2[i] = malloc(half * sizeof(double));
+    double **M3 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M3[i] = malloc(half * sizeof(double));
+    double **M4 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M4[i] = malloc(half * sizeof(double));
+    double **M5 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M5[i] = malloc(half * sizeof(double));
+    double **M6 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M6[i] = malloc(half * sizeof(double));
+    double **M7 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) M7[i] = malloc(half * sizeof(double));
+    double **T1 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) T1[i] = malloc(half * sizeof(double));
+    double **T2 = malloc(half * sizeof(double*)); for(int i = 0; i < half; i++) T2[i] = malloc(half * sizeof(double));
     
     for (int i = 0; i < half; i++) {
         for (int j = 0; j < half; j++) {
@@ -141,6 +155,16 @@ void strassen_multiply_simple() {
     
     strassen_time = omp_get_wtime() - start;
     strassen_done = 1;
+    
+    // Free allocated memory
+    for(int i = 0; i < half; i++) { free(A11[i]); free(A12[i]); free(A21[i]); free(A22[i]); }
+    for(int i = 0; i < half; i++) { free(B11[i]); free(B12[i]); free(B21[i]); free(B22[i]); }
+    for(int i = 0; i < half; i++) { free(M1[i]); free(M2[i]); free(M3[i]); free(M4[i]); }
+    for(int i = 0; i < half; i++) { free(M5[i]); free(M6[i]); free(M7[i]); free(T1[i]); free(T2[i]); }
+    free(A11); free(A12); free(A21); free(A22);
+    free(B11); free(B12); free(B21); free(B22);
+    free(M1); free(M2); free(M3); free(M4);
+    free(M5); free(M6); free(M7); free(T1); free(T2);
 }
 
 void sequential_execution() {
